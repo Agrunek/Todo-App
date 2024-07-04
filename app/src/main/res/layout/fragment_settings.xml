@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.SettingsFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/settings_app_bar_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/settings_app_bar"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/top_app_bar_edit"
+            app:navigationIcon="@drawable/ic_close_24"
+            app:title="Settings" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/settings_hide_done_label"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:gravity="start|center_vertical"
+        android:scaleX=".8"
+        android:scaleY=".8"
+        android:text="Hide done"
+        app:layout_constraintBottom_toBottomOf="@id/settings_hide_done_switch"
+        app:layout_constraintEnd_toStartOf="@id/settings_hide_done_switch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/settings_hide_done_switch" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/settings_hide_done_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settings_app_bar_wrapper" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/settings_category_label"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:gravity="start|center_vertical"
+        android:scaleX=".8"
+        android:scaleY=".8"
+        android:text="Show category"
+        app:layout_constraintBottom_toBottomOf="@id/settings_category"
+        app:layout_constraintEnd_toStartOf="@id/settings_category"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/settings_category" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/settings_category"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:hint="Category"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/settings_category_label"
+        app:layout_constraintTop_toBottomOf="@id/settings_hide_done_switch"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent=".38">
+
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/settings_delay_label"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:gravity="start|center_vertical"
+        android:scaleX=".8"
+        android:scaleY=".8"
+        android:text="Noti delay"
+        app:layout_constraintBottom_toBottomOf="@id/settings_delay"
+        app:layout_constraintEnd_toStartOf="@id/settings_delay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/settings_delay" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/settings_delay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:stepSize="1.0"
+        android:valueFrom="1.0"
+        android:valueTo="120.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/settings_delay_label"
+        app:layout_constraintTop_toBottomOf="@id/settings_category"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent=".6" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
