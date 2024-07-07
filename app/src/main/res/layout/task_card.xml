@@ -4,19 +4,18 @@
     android:id="@+id/task_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="10dp"
+    android:layout_marginTop="10dp"
     android:clickable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleX=".9"
-        android:scaleY=".9">
+        android:layout_height="match_parent">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/task_card_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
             android:text="--"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="@id/task_card_done"
@@ -28,6 +27,7 @@
             android:id="@+id/task_card_done"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
+            android:layout_marginHorizontal="15dp"
             android:text="Done"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -37,6 +37,7 @@
             android:id="@+id/task_card_description_wrapper"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
             android:layout_marginTop="10dp"
             android:shrinkColumns="0"
             app:layout_constraintEnd_toEndOf="parent"
@@ -56,6 +57,7 @@
             android:id="@+id/task_card_category"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
             android:text="--"
@@ -67,10 +69,24 @@
             android:id="@+id/task_card_expiration"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
             android:text="--/--/-- --:--"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="@id/task_card_category"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/task_card_attachment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@color/md_theme_primary"
+            android:padding="12dp"
+            android:text="--"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/task_card_expiration" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

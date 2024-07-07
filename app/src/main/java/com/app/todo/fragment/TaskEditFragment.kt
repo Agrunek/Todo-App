@@ -1,7 +1,17 @@
 package com.app.todo.fragment
 
+import android.app.Activity.RESULT_OK
+import android.content.ContentValues
+import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.MediaStore.Files
+import android.provider.MediaStore.MediaColumns
+import android.provider.OpenableColumns
 import android.text.Editable
 import android.view.View
 import android.widget.ArrayAdapter
@@ -35,8 +45,11 @@ class TaskEditFragment(private val task: Task? = null) :
     private lateinit var time: MaterialButton
     private lateinit var switch: SwitchMaterial
     private lateinit var confirm: MaterialButton
+    private lateinit var file: MaterialTextView
+    private lateinit var picker: MaterialButton
 
     private var now = Instant.now().toEpochMilli()
+    private var currentFile = task?.attachment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +66,8 @@ class TaskEditFragment(private val task: Task? = null) :
         time = view.findViewById(R.id.edit_time_picker)
         switch = view.findViewById(R.id.edit_switch)
         confirm = view.findViewById(R.id.edit_confirm)
+        file = view.findViewById(R.id.edit_attach_file_label)
+        picker = view.findViewById(R.id.edit_attach_file)
 
         val items = listOf("None", "Home", "Work", "School", "Shopping")
         val adapter = ArrayAdapter(view.context, R.layout.list_item, items)
@@ -120,7 +135,8 @@ class TaskEditFragment(private val task: Task? = null) :
                     expiration = now,
                     finished = false,
                     notify = switch.isChecked,
-                    category = category.editText?.text.toString()
+                    category = category.editText?.text.toString(),
+                    attachment = currentFile
                 )
 
                 lifecycleScope.launch {
@@ -139,7 +155,7 @@ class TaskEditFragment(private val task: Task? = null) :
                     finished = false,
                     notify = switch.isChecked,
                     category = category.editText?.text.toString(),
-                    attachment = task.attachment
+                    attachment = currentFile
                 )
 
                 lifecycleScope.launch {
@@ -158,6 +174,29 @@ class TaskEditFragment(private val task: Task? = null) :
             auto?.setText(it.category, false)
             updateDeadline(it.expiration)
             switch.isChecked = it.notify
+            if (it.attachment != null) {
+                file.text = getFileName(requireContext(), Uri.parse(it.attachment))
+            }
+        }
+
+        if (task?.attachment != null) {
+            picker.text = "DELETE FILE"
+            picker.setOnClickListener {
+                currentFile = null
+                file.text = "None"
+                picker.text = "PICK FILE"
+                picker.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT, null)
+                    intent.type = "*/*"
+                    startActivityForResult(intent, 1)
+                }
+            }
+        } else {
+            picker.setOnClickListener {
+                val intent = Intent(Intent.ACTION_GET_CONTENT, null)
+                intent.type = "*/*"
+                startActivityForResult(intent, 1)
+            }
         }
     }
 
@@ -171,6 +210,68 @@ class TaskEditFragment(private val task: Task? = null) :
         super.onDismiss(dialog)
         if (activity is DialogInterface.OnDismissListener) {
             (activity as DialogInterface.OnDismissListener).onDismiss(dialog)
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && data != null) {
+            val fileUri = data.data ?: return
+            val fileName = getFileName(requireContext(), fileUri)
+            val resolver = requireContext().contentResolver
+
+            val contentValues = ContentValues().apply {
+                put(MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS)
+                put(MediaColumns.MIME_TYPE, resolver.getType(fileUri))
+            }
+
+            resolver.insert(Files.getContentUri(MediaStore.VOLUME_EXTERNAL), contentValues)
+                ?.also { result ->
+                    resolver.openOutputStream(result).use { output ->
+                        resolver.openInputStream(fileUri).use { input ->
+                            val buffer = ByteArray(1024)
+                            var bytes = -1
+                            while (input?.read(buffer)?.also { bytes = it } != -1) {
+                                output?.write(buffer, 0, bytes)
+                            }
+
+                            currentFile = result.toString()
+                            picker.text = "DELETE FILE"
+                            picker.setOnClickListener {
+                                currentFile = null
+                                file.text = "None"
+                                picker.text = "PICK FILE"
+                                picker.setOnClickListener {
+                                    val intent = Intent(Intent.ACTION_GET_CONTENT, null)
+                                    intent.type = "*/*"
+                                    startActivityForResult(intent, 1)
+                                }
+                            }
+                            file.text = fileName
+                        }
+                    }
+                }
+        }
+    }
+
+    companion object {
+        fun getFileName(context: Context, uri: Uri?): String = if (uri != null) {
+            context.contentResolver.query(uri, null, null, null).use {
+                if (it != null && it.moveToFirst()) {
+                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index != -1) {
+                        it.getString(index)
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
+            }
+        } else {
+            ""
         }
     }
 }

@@ -2,10 +2,17 @@ package com.app.todo
 
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.MediaStore.Files
+import android.provider.MediaStore.MediaColumns
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -134,6 +141,15 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnDismissListener {
                 else -> false
             }
         }
+
+        val title = intent.getStringExtra("title")
+        if (title != null) {
+            Log.d("TASK", "Restored title: $title")
+            val item = taskDao.getAll().find { it.title.contains(title, true) }
+            if (item != null) {
+                TaskEditFragment(item).show(supportFragmentManager, "TaskEditFragment")
+            }
+        }
     }
 
     private inner class MainAdapter(private val tasks: List<Task>) :
@@ -159,6 +175,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnDismissListener {
             private val description: TextView
             private val category: TextView
             private val expiration: TextView
+            private val attachment: Button
 
             init {
                 card = view.findViewById(R.id.task_card)
@@ -167,6 +184,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnDismissListener {
                 description = view.findViewById(R.id.task_card_description)
                 category = view.findViewById(R.id.task_card_category)
                 expiration = view.findViewById(R.id.task_card_expiration)
+                attachment = view.findViewById(R.id.task_card_attachment)
             }
 
             fun bind(item: Task) {
@@ -195,6 +213,33 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnDismissListener {
                     )
 
                     taskDao.updateTasks(privateTask)
+                }
+                if (item.attachment != null) {
+                    attachment.visibility = View.VISIBLE
+                    val fileName = TaskEditFragment.getFileName(
+                        this@MainActivity, Uri.parse(item.attachment)
+                    )
+                    attachment.text = fileName
+                    attachment.setOnClickListener {
+                        contentResolver.query(
+                            Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                            arrayOf(MediaColumns._ID, MediaColumns.DISPLAY_NAME),
+                            MediaColumns.DISPLAY_NAME.plus("=?"),
+                            arrayOf(fileName),
+                            null
+                        )?.also { if (!it.moveToFirst()) return@setOnClickListener }?.use {
+                            val index = it.getColumnIndex(MediaColumns._ID)
+                            val uri = Uri.withAppendedPath(
+                                Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                                it.getLong(index).toString()
+                            )
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                setDataAndType(uri, contentResolver.getType(uri))
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            startActivity(intent)
+                        }
+                    }
                 }
             }
         }
